@@ -1,9 +1,11 @@
+
 import React, { useState } from 'react';
 import { createRoot } from 'react-dom/client';
 import { GoogleGenAI } from "@google/genai";
 
-// This is a placeholder. In a real app, the API key would be handled securely.
-const API_KEY = process.env.API_KEY;
+// FOR LOCAL TESTING: Replace "your_api_key_here" with your actual Gemini API key.
+// IMPORTANT: Do NOT commit this file with your API key in it.
+const API_KEY = "your_api_key_here";
 
 const Newsletter = () => {
     const [isVideoPlaying, setIsVideoPlaying] = useState(false);
@@ -32,6 +34,10 @@ const Newsletter = () => {
     const handleGenerate = async () => {
         if (!prompt) {
             alert("Please enter a prompt.");
+            return;
+        }
+        if (API_KEY === "your_api_key_here") {
+            alert("Please replace 'your_api_key_here' with your actual API key in index.tsx.");
             return;
         }
         setLoading(true);
