@@ -7,6 +7,9 @@ const API_KEY = process.env.API_KEY;
 
 const Newsletter = () => {
     const [isVideoPlaying, setIsVideoPlaying] = useState(false);
+    const [prompt, setPrompt] = useState('');
+    const [result, setResult] = useState('');
+    const [loading, setLoading] = useState(false);
 
     const resources = [
         {
@@ -26,10 +29,35 @@ const Newsletter = () => {
         }
     ];
 
+    const handleGenerate = async () => {
+        if (!prompt) {
+            alert("Please enter a prompt.");
+            return;
+        }
+        setLoading(true);
+        setResult('');
+        try {
+            const ai = new GoogleGenAI({ apiKey: API_KEY });
+            const response = await ai.models.generateContent({
+                model: 'gemini-2.5-flash',
+                contents: `Explain ${prompt} in a funny and unexpected way, like you did with the sock puppets explaining cloud computing.`,
+                config: {
+                    systemInstruction: "You are a creative, witty AI assistant. Your goal is to explain complex or mundane topics in a surprisingly funny and lighthearted manner. Keep your responses concise and engaging."
+                }
+            });
+            setResult(response.text);
+        } catch (error) {
+            console.error("Error generating content:", error);
+            setResult("Sorry, our AI is taking a coffee break. Please try again in a moment.");
+        } finally {
+            setLoading(false);
+        }
+    };
+
     return (
         <div className="newsletter-container">
             <header className="header">
-                <img src="https://klugmans.com/wp-content/uploads/2023/10/klugmans-logo-white-retina.png" alt="Klugmans Logo" className="logo" />
+                <img src="https://klugmans.com/images/logo/Color%20logo%20with%20background.png" alt="Klugmans Logo" className="logo" />
                 <h1>TechCoffee Corner</h1>
                 <p>Your Weekly Briefing on Tech Innovation & Strategy</p>
             </header>
@@ -76,7 +104,30 @@ const Newsletter = () => {
                     <p>This week, our creative AI was asked to explain cloud computing... using only sock puppets. The result is as educational as it is unsettling. Enjoy a moment of levity, engineered by logic.</p>
                     <div className="idea-submission">
                         <p><strong>Have a funny prompt for our AI?</strong> We're always looking for the next challenge. Let's see what we can create together.</p>
-                        <a href="#" className="cta-button secondary-cta">Submit Your Idea</a>
+                        <div className="prompt-form">
+                            <textarea
+                                className="prompt-input"
+                                value={prompt}
+                                onChange={(e) => setPrompt(e.target.value)}
+                                placeholder="e.g., 'the theory of relativity to a cat'"
+                                rows={2}
+                                disabled={loading}
+                                aria-label="Your funny prompt for the AI"
+                            />
+                            <button
+                                className="cta-button"
+                                onClick={handleGenerate}
+                                disabled={loading}
+                            >
+                                {loading ? 'Generating...' : 'Generate'}
+                            </button>
+                        </div>
+                        {loading && <div className="loader" aria-label="Loading AI response"></div>}
+                        {result && (
+                            <div className="ai-response" aria-live="polite">
+                                <p>{result}</p>
+                            </div>
+                        )}
                     </div>
                      <p className="backup-ps">P.S. When it's not directing sock puppet epics, our AI is an expert in data backup and recovery strategies. <a href="#">Ask us how.</a></p>
                 </section>
